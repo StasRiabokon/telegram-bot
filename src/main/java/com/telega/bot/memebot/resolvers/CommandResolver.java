@@ -23,60 +23,79 @@ import static java.util.stream.Collectors.toMap;
 @RequiredArgsConstructor
 public class CommandResolver {
 
-	private final CommandInvoker commandInvoker;
-	private final DefaultCommand defaultCommand;
+    private final CommandInvoker commandInvoker;
+    private final DefaultCommand defaultCommand;
 
-	private List<MultistageAbstractCommand> activeCommands = new ArrayList<>();
+    private List<MultistageAbstractCommand> activeCommands = new ArrayList<>();
 
-	private Map<String, Command> commands;
+    private Map<String, Command> commands;
 
-	public void resolve(Update update) {
-		if (update.hasMessage()) {
-			Message message = update.getMessage();
-			resolveCommandByName(message.getText(), update);
-		}
-	}
+    public void resolve(Update update) {
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
+            resolveCommandByName(message.getText(), update);
+        }
+    }
 
-	private void resolveCommandByName(String name, Update update) {
-		Optional<MultistageAbstractCommand> activeCommand = getActiveCommand();
-		activeCommand.ifPresent(ac -> commandInvoker.executeMultistageCommand(ac, update));
+    private void resolveCommandByName(String name, Update update) {
+        if (isNotMultistageCommand(name)) {
+            commandInvoker.invokeSimpleCommand(getSimpleCommand(name), update);
+        } else {
+            Optional<MultistageAbstractCommand> activeCommand = getActiveCommand();
+            if (activeCommand.isPresent()) {
+                commandInvoker.initMultistageCommand(activeCommand.get(), update);
+                Optional<MultistageAbstractCommand> readyCommand = getReadyCommand();
+                readyCommand.ifPresent(command -> {
+                    commandInvoker.executeMultistageCommand(command, update);
+                    activeCommands.remove(command);
+                });
+            } else {
+                MultistageAbstractCommand multistageCommand = getMultistageCommand(name);
+                addMultistageCommand(multistageCommand);
+                commandInvoker.initMultistageCommand(multistageCommand, update);
+            }
+        }
+    }
 
-		if (isMultistageCommand(name)) {
-			MultistageAbstractCommand multistageCommand = getMultistageCommand(name);
-			activeCommands.add(multistageCommand);
-			commandInvoker.initMultistageCommand(multistageCommand);
-			commandInvoker.executeMultistageCommand(multistageCommand, update);
-		} else
-			commandInvoker.invokeSimpleCommand(getSimpleCommand(name), update);
+    private void addMultistageCommand(MultistageAbstractCommand multistageCommand) {
+        multistageCommand.initSteps();
+        multistageCommand.initAnswers();
+        activeCommands.add(multistageCommand);
+    }
 
-	}
+    private boolean isNotMultistageCommand(String name) {
+        return commands.values()
+                .stream()
+                .anyMatch(c -> !(c instanceof MultistageCommand) && c.getName().equals(name));
 
-	private boolean isMultistageCommand(String name) {
-		return commands.values()
-				.stream()
-				.anyMatch(c -> c instanceof MultistageCommand && c.getName().equals(name));
+    }
 
-	}
+    private MultistageAbstractCommand getMultistageCommand(String s) {
+        return (MultistageAbstractCommand) commands.getOrDefault(s, defaultCommand);
+    }
 
-	private MultistageAbstractCommand getMultistageCommand(String s) {
-		return (MultistageAbstractCommand) commands.getOrDefault(s, defaultCommand);
-	}
+    private Optional<MultistageAbstractCommand> getActiveCommand() {
+        return activeCommands
+                .stream()
+                .filter(MultistageAbstractCommand::isActive)
+                .findFirst();
+    }
 
-	private Optional<MultistageAbstractCommand> getActiveCommand() {
-		return activeCommands
-				.stream()
-				.filter(command -> command.isActive() && !command.isDone())
-				.findFirst();
-	}
+    private Optional<MultistageAbstractCommand> getReadyCommand() {
+        return activeCommands
+                .stream()
+                .filter(command -> command.isReady() && !command.isActive())
+                .findFirst();
+    }
 
-	private Command getSimpleCommand(String s) {
-		return commands.getOrDefault(s, defaultCommand);
-	}
+    private Command getSimpleCommand(String s) {
+        return commands.getOrDefault(s, defaultCommand);
+    }
 
-	@Autowired
-	public void setSipmleCommands(List<Command> simpleCommands) {
-		this.commands = simpleCommands
-				.stream()
-				.collect(toMap(Command::getName, identity()));
-	}
+    @Autowired
+    public void setSipmleCommands(List<Command> simpleCommands) {
+        this.commands = simpleCommands
+                .stream()
+                .collect(toMap(Command::getName, identity()));
+    }
 }

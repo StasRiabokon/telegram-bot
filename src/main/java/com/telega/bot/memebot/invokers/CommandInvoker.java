@@ -8,16 +8,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Component
 public class CommandInvoker {
 
-	public void invokeSimpleCommand(Command simpleCommand, Update update) {
-		simpleCommand.execute(update);
-	}
+    public void invokeSimpleCommand(Command simpleCommand, Update update) {
+        simpleCommand.execute(update);
+    }
 
-	public void initMultistageCommand(MultistageAbstractCommand command) {
-		command.init();
-	}
+    public void initMultistageCommand(MultistageAbstractCommand command, Update update) {
+        command.init(update);
+    }
 
-	public void executeMultistageCommand(MultistageAbstractCommand command, Update update) {
-		command.execute(update);
-	}
+    public void executeMultistageCommand(MultistageAbstractCommand command, Update update) {
+        command.execute(update);
+    }
 
 }
