@@ -1,9 +1,8 @@
-package com.telega.bot.memebot.commands.impl.sipmle;
+package com.telega.bot.memebot.commands.impl.simple;
 
 import com.telega.bot.memebot.bots.PollingTelegramBot;
 import com.telega.bot.memebot.commands.interfaces.Command;
 import com.telega.bot.memebot.models.Bank;
-import com.telega.bot.memebot.models.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

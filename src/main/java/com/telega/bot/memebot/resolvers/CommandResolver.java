@@ -1,12 +1,14 @@
 package com.telega.bot.memebot.resolvers;
 
 import com.telega.bot.memebot.commands.abstracts.MultistageAbstractCommand;
-import com.telega.bot.memebot.commands.impl.sipmle.DefaultCommand;
+import com.telega.bot.memebot.commands.impl.simple.DefaultCommand;
+import com.telega.bot.memebot.commands.impl.simple.YouAreNotMySenpaiCommand;
 import com.telega.bot.memebot.commands.interfaces.Command;
 import com.telega.bot.memebot.commands.interfaces.MultistageCommand;
 import com.telega.bot.memebot.invokers.CommandInvoker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -23,6 +25,9 @@ import static java.util.stream.Collectors.toMap;
 @RequiredArgsConstructor
 public class CommandResolver {
 
+    @Value("${bot.api.chat-id}")
+    private Long myChatId;
+
     private final CommandInvoker commandInvoker;
     private final DefaultCommand defaultCommand;
 
@@ -33,6 +38,10 @@ public class CommandResolver {
     public void resolve(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
+            if (!message.getChatId().equals(myChatId)) {
+                commandInvoker.invokeSimpleCommand(getSimpleCommand(YouAreNotMySenpaiCommand.NAME), update);
+                return;
+            }
             resolveCommandByName(message.getText(), update);
         }
     }
@@ -40,7 +49,7 @@ public class CommandResolver {
     private void resolveCommandByName(String name, Update update) {
         if (isNotMultistageCommand(name)) {
             commandInvoker.invokeSimpleCommand(getSimpleCommand(name), update);
-        } else {
+        } else if (isMultistageCommand(name)) {
             Optional<MultistageAbstractCommand> activeCommand = getActiveCommand();
             if (activeCommand.isPresent()) {
                 commandInvoker.initMultistageCommand(activeCommand.get(), update);
@@ -67,6 +76,13 @@ public class CommandResolver {
         return commands.values()
                 .stream()
                 .anyMatch(c -> !(c instanceof MultistageCommand) && c.getName().equals(name));
+
+    }
+
+    private boolean isMultistageCommand(String name) {
+        return commands.values()
+                .stream()
+                .anyMatch(c -> c instanceof MultistageCommand && c.getName().equals(name));
 
     }
 

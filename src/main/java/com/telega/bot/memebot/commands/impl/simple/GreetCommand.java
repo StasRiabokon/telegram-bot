@@ -1,4 +1,4 @@
-package com.telega.bot.memebot.commands.impl.sipmle;
+package com.telega.bot.memebot.commands.impl.simple;
 
 import com.telega.bot.memebot.bots.PollingTelegramBot;
 import com.telega.bot.memebot.commands.interfaces.Command;

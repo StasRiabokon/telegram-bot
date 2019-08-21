@@ -1,4 +1,4 @@
-package com.telega.bot.memebot.commands.impl.sipmle;
+package com.telega.bot.memebot.commands.impl.simple;
 
 import com.telega.bot.memebot.bots.PollingTelegramBot;
 import com.telega.bot.memebot.commands.interfaces.Command;
@@ -43,6 +43,8 @@ public class HelpCommand implements Command {
 	public void setCommands(List<Command> commandList) {
 		this.commands = commandList
 				.stream()
+				.filter(c -> !(c instanceof YouAreNotMySenpaiCommand))
+				.filter(c -> !(c instanceof HelpCommand))//TODO: refactor hardcoded filter
 				.collect(toMap(Command::getName, Command::getDescription));
 	}
 

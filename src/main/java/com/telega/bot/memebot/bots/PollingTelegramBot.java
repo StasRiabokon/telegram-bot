@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendSticker;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -42,6 +43,14 @@ public class PollingTelegramBot extends TelegramLongPollingBot {
 
 	public void sendMessage(String content, Long idChat) {
 		sendMessage(content, idChat, false);
+	}
+
+	public void sendSticker(SendSticker sticker) {
+		try {
+			this.execute(sticker);
+		} catch (TelegramApiException e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 
 	public void sendMessage(String content, Long idChat, boolean html) {
