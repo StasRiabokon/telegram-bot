@@ -49,7 +49,7 @@ public class CommandResolver {
     private void resolveCommandByName(String name, Update update) {
         if (isNotMultistageCommand(name)) {
             commandInvoker.invokeSimpleCommand(getSimpleCommand(name), update);
-        } else if (isMultistageCommand(name)) {
+        } else {//TODO:Fix next if-else
             Optional<MultistageAbstractCommand> activeCommand = getActiveCommand();
             if (activeCommand.isPresent()) {
                 commandInvoker.initMultistageCommand(activeCommand.get(), update);
