@@ -46,8 +46,8 @@ public class RemindCommand extends MultistageAbstractCommand {
     public void execute(Update update) {
         LocalDateTime date = toLocalDateTime(getMap().get("date"));
 		Long chatId = update.getMessage().getChatId();
-		if (date == null) {
-			pollingTelegramBot.sendMessage("Date format is not appropriate!", chatId);
+		if (date == null || date.isBefore(now())) {
+			pollingTelegramBot.sendMessage("Date is not appropriate!", chatId);
             return;
         }
         String text = getMap().get("text");

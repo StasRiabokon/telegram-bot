@@ -49,24 +49,32 @@ public class CommandResolver {
     private void resolveCommandByName(String name, Update update) {
         if (isNotMultistageCommand(name)) {
             commandInvoker.invokeSimpleCommand(getSimpleCommand(name), update);
-        } else {
-            Optional<MultistageAbstractCommand> activeCommand = getActiveCommand();
-            if (activeCommand.isPresent()) {
-                commandInvoker.initMultistageCommand(activeCommand.get(), update);
-                Optional<MultistageAbstractCommand> readyCommand = getReadyCommand();
-                readyCommand.ifPresent(command -> {
-                    commandInvoker.executeMultistageCommand(command, update);
-                    activeCommands.remove(command);
-                });
-            } else {
-                if (isNotCommand(name)) {
-                    return;
-                }
-                MultistageAbstractCommand multistageCommand = getMultistageCommand(name);
-                addMultistageCommand(multistageCommand);
-                commandInvoker.initMultistageCommand(multistageCommand, update);
-            }
+            return;
         }
+        Optional<MultistageAbstractCommand> activeCommand = getActiveCommand();
+        if (activeCommand.isPresent()) {
+            executeActiveCommand(update, activeCommand.get());
+            return;
+        }
+        if (isNotCommand(name)) {
+            return;
+        }
+        initNewCommand(name, update);
+    }
+
+    private void initNewCommand(String name, Update update) {
+        MultistageAbstractCommand multistageCommand = getMultistageCommand(name);
+        addMultistageCommand(multistageCommand);
+        commandInvoker.initMultistageCommand(multistageCommand, update);
+    }
+
+    private void executeActiveCommand(Update update, MultistageAbstractCommand activeCommand) {
+        commandInvoker.initMultistageCommand(activeCommand, update);
+        Optional<MultistageAbstractCommand> readyCommand = getReadyCommand();
+        readyCommand.ifPresent(command -> {
+            commandInvoker.executeMultistageCommand(command, update);
+            activeCommands.remove(command);
+        });
     }
 
     private void addMultistageCommand(MultistageAbstractCommand multistageCommand) {

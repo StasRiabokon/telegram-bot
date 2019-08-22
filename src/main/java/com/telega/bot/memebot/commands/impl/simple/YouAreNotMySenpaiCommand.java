@@ -18,9 +18,10 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class YouAreNotMySenpaiCommand implements Command {
 
-    private final PollingTelegramBot pollingTelegramBot;
     public static final String NAME = "/senpai";
-    public static final String INCOGNITO_TEXT = "I don't know you!";
+    private static final String INCOGNITO_TEXT = "I don't know you!";
+
+    private final PollingTelegramBot pollingTelegramBot;
 
     @Value("classpath:stickers/senpai.webp")
     private Resource resource;
