@@ -1,13 +1,14 @@
 package com.telega.bot.memebot.commands.impl.simple;
 
+import com.telega.bot.memebot.annotations.BotCommandBeanPostProcessor;
 import com.telega.bot.memebot.bots.PollingTelegramBot;
 import com.telega.bot.memebot.commands.interfaces.Command;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -39,12 +40,10 @@ public class HelpCommand implements Command {
 		return builder.toString();
 	}
 
-	@Autowired
-	public void setCommands(List<Command> commandList) {
-		this.commands = commandList
+	@EventListener(ContextRefreshedEvent.class)
+	public void setCommands() {
+		this.commands = BotCommandBeanPostProcessor.COMMANDS
 				.stream()
-				.filter(c -> !(c instanceof YouAreNotMySenpaiCommand))
-				.filter(c -> !(c instanceof HelpCommand))//TODO: refactor hardcoded filter
 				.collect(toMap(Command::getName, Command::getDescription));
 	}
 

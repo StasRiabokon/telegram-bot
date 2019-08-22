@@ -1,5 +1,6 @@
 package com.telega.bot.memebot.commands.impl.simple;
 
+import com.telega.bot.memebot.annotations.BotCommand;
 import com.telega.bot.memebot.bots.PollingTelegramBot;
 import com.telega.bot.memebot.commands.interfaces.Command;
 import com.telega.bot.memebot.models.Bank;
@@ -14,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Component
+@BotCommand
 @RequiredArgsConstructor
 public class CurrencyCommand implements Command {
 
@@ -63,3 +65,4 @@ public class CurrencyCommand implements Command {
 		return "Shows the currency";
 	}
 }
+

@@ -49,7 +49,7 @@ public class CommandResolver {
     private void resolveCommandByName(String name, Update update) {
         if (isNotMultistageCommand(name)) {
             commandInvoker.invokeSimpleCommand(getSimpleCommand(name), update);
-        } else {//TODO:Fix next if-else
+        } else {
             Optional<MultistageAbstractCommand> activeCommand = getActiveCommand();
             if (activeCommand.isPresent()) {
                 commandInvoker.initMultistageCommand(activeCommand.get(), update);
@@ -59,6 +59,9 @@ public class CommandResolver {
                     activeCommands.remove(command);
                 });
             } else {
+                if (isNotCommand(name)) {
+                    return;
+                }
                 MultistageAbstractCommand multistageCommand = getMultistageCommand(name);
                 addMultistageCommand(multistageCommand);
                 commandInvoker.initMultistageCommand(multistageCommand, update);
@@ -79,10 +82,10 @@ public class CommandResolver {
 
     }
 
-    private boolean isMultistageCommand(String name) {
+    private boolean isNotCommand(String name) {
         return commands.values()
                 .stream()
-                .anyMatch(c -> c instanceof MultistageCommand && c.getName().equals(name));
+                .noneMatch(c -> c.getName().equals(name));
 
     }
 

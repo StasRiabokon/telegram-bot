@@ -1,5 +1,6 @@
 package com.telega.bot.memebot.commands.impl.simple;
 
+import com.telega.bot.memebot.annotations.BotCommand;
 import com.telega.bot.memebot.bots.PollingTelegramBot;
 import com.telega.bot.memebot.commands.interfaces.Command;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
+@BotCommand
 @RequiredArgsConstructor
 public class GreetCommand implements Command {
 

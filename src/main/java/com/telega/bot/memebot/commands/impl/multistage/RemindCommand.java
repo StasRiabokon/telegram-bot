@@ -1,5 +1,6 @@
 package com.telega.bot.memebot.commands.impl.multistage;
 
+import com.telega.bot.memebot.annotations.BotCommand;
 import com.telega.bot.memebot.bots.PollingTelegramBot;
 import com.telega.bot.memebot.commands.abstracts.MultistageAbstractCommand;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Slf4j
 @Component
+@BotCommand
 public class RemindCommand extends MultistageAbstractCommand {
 
     private static final String DATE_FORMATTER = "yyyy-MM-dd HH:mm";
