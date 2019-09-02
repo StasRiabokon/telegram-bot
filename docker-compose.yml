@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  memebot:
+    build:
+      context: .
+      args:
+        PROJECT_HOME: /opt/memebot
+      dockerfile: docker/Dockerfile
+    container_name: memebot
+    environment:
+      - BOT_API_TOKEN=${BOT_API_TOKEN}
+      - BOT_API_NAME=${BOT_API_NAME}
+      - MY_CHAT_ID=${MY_CHAT_ID}
+    volumes:
+      - $HOME/data/app-data:/opt/memebot/logs/
